@@ -1,2 +1,180 @@
-"Hi" 
-"this is a different text"
+<html><head><base href="/" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slowly Rotating 8===></title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #000;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+  }
+  
+  .scene {
+    perspective: 1000px;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .text3d {
+    position: absolute;
+    font-size: 72px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 10px rgb(0, 255, 42), 0 0 20px rgb(0, 255, 42), 0 0 30px rgb(0, 255, 42);
+    transform-style: preserve-3d;
+    transform-origin: center center;
+  }
+</style>
+</head>
+<body>
+  <div class="scene">
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+    <div class="text3d">8===></div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const scene = document.querySelector('.scene');
+  const text3dElements = document.querySelectorAll('.text3d');
+
+  const animations = Array.from(text3dElements).map(() => ({
+    rotationX: Math.random() * 360,
+    rotationY: Math.random() * 360,
+    rotationZ: Math.random() * 360,
+    posX: 0,
+    posY: 0,
+    directionX: (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 1 + 0.5),
+    directionY: (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 1 + 0.5),
+    rotationSpeedX: Math.random() * 0.5 + 0.1,  // Reduced rotation speed
+    rotationSpeedY: Math.random() * 0.5 + 0.1,  // Reduced rotation speed
+    rotationSpeedZ: Math.random() * 0.5 + 0.1   // Reduced rotation speed
+  }));
+
+  function animate() {
+    text3dElements.forEach((text3d, index) => {
+      const animation = animations[index];
+
+      // Update rotation
+      animation.rotationX += animation.rotationSpeedX;
+      animation.rotationY += animation.rotationSpeedY;
+      animation.rotationZ += animation.rotationSpeedZ;
+
+      // Update position
+      animation.posX += animation.directionX;
+      animation.posY += animation.directionY;
+
+      // Bounce off edges
+      if (animation.posX > window.innerWidth / 2 - 150 || animation.posX < -window.innerWidth / 2 + 150) {
+        animation.directionX *= -1;
+      }
+      if (animation.posY > window.innerHeight / 2 - 75 || animation.posY < -window.innerHeight / 2 + 75) {
+        animation.directionY *= -1;
+      }
+
+      // Apply transformations
+      text3d.style.transform = `
+        translate(${animation.posX}px, ${animation.posY}px)
+        rotateX(${animation.rotationX}deg)
+        rotateY(${animation.rotationY}deg)
+        rotateZ(${animation.rotationZ}deg)
+      `;
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  // Center the text elements initially
+  text3dElements.forEach(text3d => {
+    text3d.style.left = '50%';
+    text3d.style.top = '50%';
+  });
+
+  animate();
+
+  // Adjust text size on window resize
+  function resizeText() {
+    const fontSize = Math.min(window.innerWidth / 7, 72);
+    text3dElements.forEach(text3d => {
+      text3d.style.fontSize = `${fontSize}px`;
+    });
+  }
+
+  window.addEventListener('resize', resizeText);
+  resizeText();
+});
+</script>
+</body>
+</html>
