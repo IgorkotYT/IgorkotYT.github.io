@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Krzyżówka Interaktywna - Metabolizm</title>
+    <style>
+        :root {
+            --bg-color: #fafafa;
+            --text-color: #333;
+            --cell-bg-color: #ffffff;
+            --cell-border-color: #ccc;
+            --cell-number-color: #555;
+            --black-cell-bg-color: rgba(255, 0, 0, 0);
+            --correct-color: #c8e6c9;
+            --incorrect-color: #ffcdd2;
+            --button-bg-color: #555;
+            --button-text-color: #fff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --cell-bg-color: #1e1e1e;
+            --cell-border-color: #333;
+            --cell-number-color: #bbb;
+            --black-cell-bg-color: rgba(255, 0, 0, 0);
+            --correct-color: #388e3c;
+            --incorrect-color: #d32f2f;
+            --button-bg-color: #111;
+            --button-text-color: #fff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 90vw;
+            margin: 20px auto;
+            padding: 10px;
+        }
+        h1 {
+            text-align: center;
+            color: var(--text-color);
+        }
+        .crossword {
+            display: grid;
+            grid-template-columns: repeat(25, 1fr);
+            grid-template-rows: repeat(15, 1fr);
+            gap: 0;
+            margin: 0 auto;
+            justify-content: center;
+            border: 1px solid var(--black-cell-bg-color);
+            width: 90vw;
+            max-width: 800px;
+        }
+        .crossword .cell, .crossword .black {
+            aspect-ratio: 1;
+        }
+        .crossword input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            text-transform: uppercase;
+            text-align: center;
+            font-size: calc(1vw + 8px);
+            outline: none;
+            background-color: var(--cell-bg-color);
+            color: var(--text-color);
+        }
+        .crossword .cell {
+            background-color: var(--cell-bg-color);
+            position: relative;
+            border: 1px solid var(--cell-border-color);
+            box-sizing: border-box;
+        }
+        .crossword .cell.number::before {
+            content: attr(data-number);
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            font-size: calc(0.5vw + 6px);
+            color: var(--cell-number-color);
+        }
+        .crossword .black {
+            background-color: var(--black-cell-bg-color);
+            border: 1px solid var(--black-cell-bg-color);
+            box-sizing: border-box;
+        }
+		.crossword .cell.start-column {
+			position: relative; /* Allows precise positioning */
+			left: -3px; /* Moves the cell slightly to the left */
+			z-index: 10; /* Ensures it sits above other cells */
+			border-left: 1px solid var(--text-color); /* Makes the left border thicker */
+			border-top: 1px solid var(--text-color); /* Thick top border for the first column */
+			border-bottom: 0px solid var(--text-color); /* Thick bottom border for the first column */
+			border-right: 1px solid var(--text-color); /* Thick right border for the first column */
+			box-sizing: border-box; /* Ensure proper sizing */
+		}
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .button-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+            background-color: var(--button-bg-color);
+            color: var(--button-text-color);
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .button-container button:hover {
+            background-color: #1565c0;
+        }
+        #message {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        .hints {
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        .hints h2 {
+            text-align: center;
+            color: var(--text-color);
+        }
+        .hints ul {
+            list-style: none;
+            padding: 0;
+        }
+        .hints li {
+            margin: 5px 0;
+            font-size: 23px;
+        }
+        .hints li span {
+            font-weight: bold;
+        }
+        .correct {
+            background-color: var(--correct-color) !important;
+        }
+        .incorrect {
+            background-color: var(--incorrect-color) !important;
+        }
+        @media print {
+            .button-container, #message {
+                display: none;
+            }
+            body {
+                background-color: white;
+                color: black;
+            }
+            .crossword {
+                width: 100%;
+                max-width: none;
+                border: none;
+            }
+            .crossword .cell, .crossword .black {
+                border: 1px solid #000;
+            }
+            .crossword input {
+                color: black;
+                -webkit-print-color-adjust: exact;
+            }
+            .crossword .black {
+                background-color: transparent !important;
+                border: none;
+                border-bottom: 1px solid #000; /* Linie pod niewykorzystanymi polami */
+            }
+            .crossword .cell.number::before {
+                color: black;
+            }
+            .hints {
+                display: block; /* Podpowiedzi będą widoczne na wydruku */
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="container">
+        <h1>Krzyżówka Interaktywna - Metabolizm</h1>
+        <div class="button-container">
+            <button onclick="toggleTheme()">Przełącz motyw</button>
+            <button onclick="checkAnswers()">Sprawdź odpowiedzi</button>
+            <button onclick="showAnswers()">Pokaż odpowiedzi</button>
+            <button onclick="window.print()">Drukuj</button>
+        </div>
+        <div id="message"></div>
+        <div class="crossword" id="crossword"></div>
+
+        <div class="hints">
+            <h2>Podpowiedzi</h2>
+            <ul>
+                <li><span>1.</span> Najprostsza forma cukrów.</li>
+                <li><span>2.</span> Białka przyspieszające reakcje chemiczne.</li>
+                <li><span>3.</span> Związki organiczne będące estrami kwasów tłuszczowych.</li>
+                <li><span>4.</span> Budują białka.</li>
+                <li><span>5.</span> Polimery zbudowane z aminokwasów.</li>
+                <li><span>6.</span> Proces utleniania.</li>
+                <li><span>7.</span> Grupa związków tłuszczowych.</li>
+                <li><span>8.</span> Związki o tym samym wzorze sumarycznym, ale różnej strukturze.</li>
+                <li><span>9.</span> Związki zawierające węgiel.</li>
+                <li><span>10.</span> Enzym trawiący maltozę.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const words = [
+            {word: 'MONOSACHARYD', row: 0, col: 8, dir: 'across', number: 1, hint: 'Najprostsza forma cukrów.'},
+            {word: 'ENZYMY', row: 1, col: 8, dir: 'across', number: 2, hint: 'Białka przyspieszające reakcje chemiczne.'},
+            {word: 'TŁUSZCZE', row: 2, col: 8, dir: 'across', number: 3, hint: 'Związki organiczne będące estrami kwasów tłuszczowych.'},
+            {word: 'AMINOKWASY', row: 3, col: 8, dir: 'across', number: 4, hint: 'Budują białka.'},
+            {word: 'BIAŁKA', row: 4, col: 8, dir: 'across', number: 5, hint: 'Polimery zbudowane z aminokwasów.'},
+            {word: 'OKSYDACJA', row: 5, col: 8, dir: 'across', number: 6, hint: 'Proces utleniania.'},
+            {word: 'LIPIDY', row: 6, col: 8, dir: 'across', number: 7, hint: 'Grupa związków tłuszczowych.'},
+            {word: 'IZOMERY', row: 7, col: 8, dir: 'across', number: 8, hint: 'Związki o tym samym wzorze sumarycznym, ale różnej strukturze.'},
+            {word: 'ZWIĄZKIORGANICZNE', row: 8, col: 8, dir: 'across', number: 9, hint: 'Związki zawierające węgiel.'},
+            {word: 'MALTAZA', row: 9, col: 8, dir: 'across', number: 10, hint: 'Enzym trawiący maltozę.'},
+            {word: 'METABOLIZM', row: 0, col: 8, dir: 'down', number: 11, hint: ''},
+        ];
+
+        const numRows = 15;
+        const numCols = 25;
+        const crossword = document.getElementById('crossword');
+
+        // Inicjalizacja siatki z czarnymi komórkami
+        const grid = Array.from({ length: numRows }, () => Array(numCols).fill(null));
+
+        // Umieszczenie słów na siatce
+        words.forEach(entry => {
+            let { word, row, col, dir, number } = entry;
+            for (let i = 0; i < word.length; i++) {
+                let r = row;
+                let c = col;
+                if (dir === 'across') c += i;
+                else if (dir === 'down') r += i;
+
+                if (!grid[r][c]) grid[r][c] = { letter: word[i], numbers: [], inputId: `cell-${r}-${c}` };
+                if (i === 0) grid[r][c].numbers.push(number);
+            }
+        });
+
+        // Budowa siatki krzyżówki
+        for (let r = 0; r < numRows; r++) {
+            for (let c = 0; c < numCols; c++) {
+                const cellData = grid[r][c];
+                const cell = document.createElement('div');
+
+                if (cellData) {
+                    cell.className = 'cell';
+                    if (c == 8) {
+                        cell.classList.add('start-column');
+                    }
+                    const input = document.createElement('input');
+                    input.maxLength = 1;
+                    input.id = cellData.inputId;
+                    input.addEventListener('input', handleInput);
+                    cell.appendChild(input);
+
+                    if (cellData.numbers.length > 0) {
+                        cell.classList.add('number');
+                        cell.setAttribute('data-number', cellData.numbers.join(','));
+                    }
+                } else {
+                    cell.className = 'black';
+                }
+
+                crossword.appendChild(cell);
+            }
+        }
+
+        function handleInput(e) {
+            const input = e.target;
+            input.value = input.value.toUpperCase().replace(/[^A-ZĄĆĘŁŃÓŚŹŻ]/g, '');
+            const idParts = input.id.split('-');
+            const r = parseInt(idParts[1]);
+            const c = parseInt(idParts[2]);
+
+            // Znajdź następne pole w słowie
+            let nextCell = null;
+            for (let wordEntry of words) {
+                let { word, row, col, dir } = wordEntry;
+                for (let i = 0; i < word.length; i++) {
+                    let cellR = row;
+                    let cellC = col;
+                    if (dir === 'across') cellC += i;
+                    else if (dir === 'down') cellR += i;
+
+                    if (cellR === r && cellC === c) {
+                        if (i + 1 < word.length) {
+                            let nextR = cellR;
+                            let nextC = cellC;
+                            if (dir === 'across') nextC += 1;
+                            else if (dir === 'down') nextR += 1;
+
+                            nextCell = document.getElementById(`cell-${nextR}-${nextC}`);
+                        }
+                        break;
+                    }
+                }
+                if (nextCell) break;
+            }
+
+            if (nextCell) {
+                nextCell.focus();
+            }
+        }
+
+        function checkAnswers() {
+            let correct = true;
+            words.forEach(({ word, row, col, dir }) => {
+                for (let i = 0; i < word.length; i++) {
+                    let r = row;
+                    let c = col;
+                    if (dir === 'across') c += i;
+                    else if (dir === 'down') r += i;
+
+                    const input = document.getElementById(`cell-${r}-${c}`);
+                    if (input) {
+                        if (input.value.toUpperCase() !== word[i]) {
+                            input.classList.add('incorrect');
+                            input.classList.remove('correct');
+                            correct = false;
+                        } else {
+                            input.classList.add('correct');
+                            input.classList.remove('incorrect');
+                        }
+                    }
+                }
+            });
+            const message = document.getElementById('message');
+            if (correct) {
+                message.textContent = 'Gratulacje! Udało Ci się rozwiązać krzyżówkę!';
+                message.style.color = 'green';
+            } else {
+                message.textContent = 'Niektóre odpowiedzi są niepoprawne. Spróbuj ponownie.';
+                message.style.color = 'red';
+            }
+        }
+
+        function showAnswers() {
+            words.forEach(({ word, row, col, dir }) => {
+                for (let i = 0; i < word.length; i++) {
+                    let r = row;
+                    let c = col;
+                    if (dir === 'across') c += i;
+                    else if (dir === 'down') r += i;
+
+                    const input = document.getElementById(`cell-${r}-${c}`);
+                    if (input) {
+                        input.value = word[i];
+                        input.classList.add('correct');
+                        input.classList.remove('incorrect');
+                    }
+                }
+            });
+            const message = document.getElementById('message');
+            message.textContent = 'Odpowiedzi zostały wyświetlone.';
+            message.style.color = 'blue';
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            body.setAttribute('data-theme', currentTheme === 'light' ? 'dark' : 'light');
+        }
+    </script>
+
+</body>
+</html>
